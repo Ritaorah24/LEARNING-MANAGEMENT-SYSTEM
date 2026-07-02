@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import paymentRoutes from './routes/paymentRoute.js';
 import dotenv from "dotenv";
 import cors from "cors";
@@ -25,7 +26,32 @@ app.use('/api/payment/webhook',
 
 // middleware 
 app.use(express.json());
-app.use(cors())
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3001",
+  // "http://localhost:3002",
+  
+  
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS: " + origin));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+
+
+app.use(cookieParser());
 
 
 
