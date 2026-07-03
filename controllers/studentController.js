@@ -13,8 +13,8 @@ import crypto from 'crypto';
 export const getStudentDashboard = async (req, res, next) => {
   try {
     // get all enrollments for the logged in student
-    const enrollments = await Enrollment.find({ student: req.user.id })
-      .populate('course', 'title thumbnail category level')
+    const enrollments = await Enrollment.find({ studentId: req.user.id })
+      .populate('courseId', 'title thumbnail category level')
       .sort({ updatedAt: -1 });
 
     // count completed courses
@@ -24,8 +24,8 @@ export const getStudentDashboard = async (req, res, next) => {
     const inProgressCourses = enrollments.filter(e => !e.isCompleted).length;
 
     // get certificates
-    const certificates = await Certificate.find({ student: req.user.id })
-      .populate('course', 'title');
+    const certificates = await Certificate.find({ studentId: req.user.id })
+      .populate('courseId', 'title');
 
     return res.status(200).json({
       success: true,
@@ -64,7 +64,7 @@ export const getCourseCatalog = async (req, res, next) => {
     }
 
     const courses = await Course.find(filter)
-      .populate('instructor', 'name avatar')
+      .populate('instructorId', 'name avatar')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -111,8 +111,8 @@ export const enrollCourse = async (req, res, next) => {
 
     // check if student is already enrolled
     const existingEnrollment = await Enrollment.findOne({
-      student: req.user.id,
-      course: courseId
+      studentId: req.user.id,
+      courseId: courseId
     });
 
     if (existingEnrollment) {
@@ -124,20 +124,20 @@ export const enrollCourse = async (req, res, next) => {
 
     // create enrollment
     const enrollment = await Enrollment.create({
-      student: req.user.id,
-      course: courseId,
+      studentId: req.user.id,
+      courseId: courseId,
       completedLessons: [],
       progress: 0
     });
 
     // add student to course enrolledStudents
     await Course.findByIdAndUpdate(courseId, {
-      $push: { enrolledStudents: req.user.id }
+      $push: { enrolledStudentsId: req.user.id }
     });
 
     // add course to student enrolledCourses
     await User.findByIdAndUpdate(req.user.id, {
-      $push: { enrolledCourses: courseId }
+      $push: { enrolledCoursesId: courseId }
     });
 
     return res.status(201).json({
@@ -159,8 +159,8 @@ export const getCourseLessons = async (req, res, next) => {
 
     // check if student is enrolled
     const enrollment = await Enrollment.findOne({
-      student: req.user.id,
-      course: courseId
+      studentId: req.user.id,
+      courseId: courseId
     });
 
     if (!enrollment) {
@@ -177,7 +177,7 @@ export const getCourseLessons = async (req, res, next) => {
     // mark which lessons are completed
     const lessonsWithProgress = lessons.map(lesson => ({
       ...lesson.toObject(),
-      isCompleted: enrollment.completedLessons
+      isCompleted: enrollment.completedLessonsId
         .map(id => id.toString())
         .includes(lesson._id.toString())
     }));
@@ -209,8 +209,8 @@ export const getLessonResources = async (req, res, next) => {
 
     // check if student is enrolled in the course
     const enrollment = await Enrollment.findOne({
-      student: req.user.id,
-      course: lesson.course
+      studentId: req.user.id,
+      courseId: lesson.courseId
     });
 
     if (!enrollment) {
@@ -247,8 +247,8 @@ export const markLessonComplete = async (req, res, next) => {
 
     // find enrollment
     const enrollment = await Enrollment.findOne({
-      student: req.user.id,
-      course: lesson.course
+      studentId: req.user.id,
+      courseId: lesson.courseId
     });
 
     if (!enrollment) {
@@ -259,7 +259,7 @@ export const markLessonComplete = async (req, res, next) => {
     }
 
     // check if lesson is already completed
-    const alreadyCompleted = enrollment.completedLessons
+    const alreadyCompleted = enrollment.completedLessonsId
       .map(id => id.toString())
       .includes(lessonId);
 
@@ -303,9 +303,9 @@ export const getCourseProgress = async (req, res, next) => {
     const { courseId } = req.params;
 
     const enrollment = await Enrollment.findOne({
-      student: req.user.id,
-      course: courseId
-    }).populate('completedLessons', 'title order');
+      studentId: req.user.id,
+      courseId: courseId
+    }).populate('completedLessonsId', 'title order');
 
     if (!enrollment) {
       return res.status(404).json({
@@ -314,7 +314,7 @@ export const getCourseProgress = async (req, res, next) => {
       });
     }
 
-    const totalLessons = await Lesson.countDocuments({ course: courseId });
+    const totalLessons = await Lesson.countDocuments({ courseId: courseId });
 
     return res.status(200).json({
       success: true,
@@ -322,7 +322,7 @@ export const getCourseProgress = async (req, res, next) => {
         progress: enrollment.progress,
         isCompleted: enrollment.isCompleted,
         completedAt: enrollment.completedAt,
-        completedLessons: enrollment.completedLessons,
+        completedLessonsId: enrollment.completedLessonsId,
         totalLessons
       }
     });
@@ -340,8 +340,8 @@ export const getCourseQuizzes = async (req, res, next) => {
 
     // check if enrolled
     const enrollment = await Enrollment.findOne({
-      student: req.user.id,
-      course: courseId
+      studentId: req.user.id,
+      courseId: courseId
     });
 
     if (!enrollment) {
@@ -351,7 +351,7 @@ export const getCourseQuizzes = async (req, res, next) => {
       });
     }
 
-    const quizzes = await Quiz.find({ course: courseId });
+    const quizzes = await Quiz.find({ courseId: courseId });
 
     return res.status(200).json({
       success: true,
@@ -380,8 +380,8 @@ export const submitQuiz = async (req, res, next) => {
 
     // check if enrolled
     const enrollment = await Enrollment.findOne({
-      student: req.user.id,
-      course: quiz.course
+      studentId: req.user.id,
+      courseId: quiz.courseId
     });
 
     if (!enrollment) {
@@ -405,9 +405,9 @@ export const submitQuiz = async (req, res, next) => {
 
     // save quiz result
     const quizResult = await QuizResult.create({
-      student: req.user.id,
-      quiz: quizId,
-      course: quiz.course,
+      studentId: req.user.id,
+      quizId: quizId,
+      courseId: quiz.courseId,
       answers,
       score,
       passed,
@@ -461,8 +461,8 @@ export const generateCertificate = async (req, res, next) => {
 
     // check if certificate already exists
     const existingCertificate = await Certificate.findOne({
-      student: req.user.id,
-      course: courseId
+      studentId: req.user.id,
+      courseId: courseId
     });
 
     if (existingCertificate) {
@@ -478,15 +478,15 @@ export const generateCertificate = async (req, res, next) => {
 
     // create certificate
     const certificate = await Certificate.create({
-      student: req.user.id,
-      course: courseId,
+      studentId: req.user.id,
+      courseId: courseId,
       enrollment: enrollment._id,
       certificateId
     });
 
     // add certificate to student
     await User.findByIdAndUpdate(req.user.id, {
-      $push: { certificates: certificate._id }
+      $push: { certificatesId: certificate._id }
     });
 
     return res.status(201).json({
@@ -503,8 +503,8 @@ export const generateCertificate = async (req, res, next) => {
 // GET /api/student/certificates
 export const getStudentCertificates = async (req, res, next) => {
   try {
-    const certificates = await Certificate.find({ student: req.user.id })
-      .populate('course', 'title thumbnail instructor')
+    const certificates = await Certificate.find({ studentId: req.user.id })
+      .populate('courseId', 'title thumbnail instructor')
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
