@@ -2,6 +2,7 @@ import express from 'express';
 import {
   register,
   login,
+  logout,
   getProfile,
   updateProfile,
   changePassword,
@@ -29,7 +30,9 @@ const authRoutes = express.Router();
 authRoutes.post('/register', validate(registerSchema), register);
 authRoutes.post('/login', validate(loginSchema), login);
 
+
 // auth required
+authRoutes.post('/logout', authMiddleware, logout);
 authRoutes.get('/me', authMiddleware, getProfile);
 authRoutes.patch('/update', authMiddleware,avatarUpload.single('avatar'), validate(updateProfileSchema), updateProfile);
 authRoutes.patch('/changepassword', authMiddleware, validate(changePasswordSchema), changePassword);
