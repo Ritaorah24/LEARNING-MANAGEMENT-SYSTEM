@@ -38,12 +38,12 @@ const instructorRoutes = express.Router();
 instructorRoutes.get('/dashboard', authMiddleware, instructorOnly, getInstructorDashboard);
 
 // course management
-instructorRoutes.post('/create', authMiddleware, instructorOnly, validate(createCourseSchema),thumbnailUpload.single('image'),createCourse);
+instructorRoutes.post('/create', authMiddleware, instructorOnly, validate(createCourseSchema),thumbnailUpload.single('thumbnail'),createCourse);
 instructorRoutes.get('/courses', authMiddleware, instructorOnly, getInstructorCourses);
 instructorRoutes.get('/courses/:courseId', authMiddleware, instructorOnly, getSingleInstructorCourse);
 instructorRoutes.patch('/courses/:courseId', authMiddleware, instructorOnly, validate(updateCourseSchema), updateCourse);
 instructorRoutes.delete('/courses/:courseId', authMiddleware, instructorOnly, deleteCourse);
-instructorRoutes.patch('/courses/:courseId/publish', authMiddleware, instructorOnly, togglePublishCourse);
+instructorRoutes.patch('/courses/:courseId/publish', authMiddleware, instructorOnly, togglePublishCourse);//publish/unpublish route
 
 // lesson management
 instructorRoutes.post('/courses/:courseId/lessons',authMiddleware,instructorOnly,validate(createLessonSchema),videoUpload.single('video'),createLesson);
