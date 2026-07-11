@@ -13,7 +13,7 @@ import errorHandler from "./middleware/errorMiddleware.js";
 dotenv.config();
 
 const app = express()
-const PORT = process.env.PORT 
+const PORT = process.env.PORT
 connectDb();
 
 app.use('/api/payment/webhook',
@@ -30,8 +30,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3001",
   // "http://localhost:3002",
-  
-  
+
+
 ];
 
 app.use(
@@ -66,10 +66,10 @@ app.use(errorHandler);
 
 
 
-app.get('/', (req,res) => {
-    res.json({message: "WELCOME TO VERCITY"})
+app.get('/', (req, res) => {
+  res.json({ message: "WELCOME TO VERCITY" })
 });
 
 app.listen(PORT, () => {
-    console.log(`server is running on port ${PORT}`)
+  console.log(`server is running on port ${PORT}`)
 })
