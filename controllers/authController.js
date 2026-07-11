@@ -35,7 +35,7 @@ export const register = async (req, res, next) => {
     return res.status(201).json({
       success: true,
       message: "Registration successful",
-      
+
     });
 
   } catch (error) {
@@ -82,12 +82,12 @@ export const login = async (req, res, next) => {
       email: user.email,
       role: user.role
     });
-
+    //response if the login was successful
     return res.status(200).json({
       success: true,
       message: "Login successful",
       token,
-    
+
     });
 
   } catch (error) {
@@ -97,7 +97,6 @@ export const login = async (req, res, next) => {
 
 
 //  LOGOUT
-// POST /api/auth/logout
 export const logout = async (req, res, next) => {
   try {
     // get token from header
@@ -122,7 +121,6 @@ export const logout = async (req, res, next) => {
 
 
 // ---- GET PROFILE ----
-// GET /auth/me
 export const getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id)
@@ -289,53 +287,53 @@ export const forgotPassword = async (req, res, next) => {
 // 8. FORGOT PASSWORD — STEP 2: VERIFY OTP
 // POST /api/auth/verify-otp
 export const verifyOTP = async (req, res, next) => {
- try {
-  const { email, otp } = req.body;
+  try {
+    const { email, otp } = req.body;
 
-  // find OTP in database
-  const otpRecord = await OTP.findOne({
-   email,
-   otp,
-   isUsed: false,
-   purpose: 'password_reset'
- });
-
-  if (!otpRecord) {
-  return res.status(400).json({
-   success: false,
-   message: "Invalid or expired OTP"
-  });
- }
-
-  // check if OTP has expired
-  if (otpRecord.expiresAt < new Date()) {
-  await OTP.deleteOne({ _id: otpRecord._id });
-  return res.status(400).json({
-  success: false,
-   message: "OTP has expired. Please request a new one"
-  });
- }
-
-  // FIXED: Invalidate OTP instantly so it cannot be used again
-   otpRecord.isUsed = true;
-   await otpRecord.save();
-
-  // FIXED: Generate secure single-use 5-minute token proving verification passed
-    const resetToken = jwt.sign(
-    { email },
-    process.env.JWT_SECRET,
-    { expiresIn: '10m' }
-   );
-
-    return res.status(200).json({
-    success: true,
-    message: "OTP verified successfully. You can now reset your password",
-    resetToken
+    // find OTP in database
+    const otpRecord = await OTP.findOne({
+      email,
+      otp,
+      isUsed: false,
+      purpose: 'password_reset'
     });
 
- } catch (error) {
-   next(error);
-   }
+    if (!otpRecord) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP"
+      });
+    }
+
+    // check if OTP has expired
+    if (otpRecord.expiresAt < new Date()) {
+      await OTP.deleteOne({ _id: otpRecord._id });
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new one"
+      });
+    }
+
+    // FIXED: Invalidate OTP instantly so it cannot be used again
+    otpRecord.isUsed = true;
+    await otpRecord.save();
+
+    // FIXED: Generate secure single-use 5-minute token proving verification passed
+    const resetToken = jwt.sign(
+      { email },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully. You can now reset your password",
+      resetToken
+    });
+
+  } catch (error) {
+    next(error);
+  }
 };
 
 
