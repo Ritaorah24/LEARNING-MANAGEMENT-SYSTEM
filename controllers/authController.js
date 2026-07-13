@@ -11,7 +11,7 @@ import BlacklistedToken from '../models/blacklistedTokenModel.js';
 
 
 //  REGISTER 
-// POST /api/auth/register
+
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -44,8 +44,8 @@ export const register = async (req, res, next) => {
 };
 
 
-// ---- LOGIN ----
-// POST /api/auth/login
+// LOGIN 
+
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -97,6 +97,7 @@ export const login = async (req, res, next) => {
 
 
 //  LOGOUT
+
 export const logout = async (req, res, next) => {
   try {
     // get token from header
@@ -120,7 +121,8 @@ export const logout = async (req, res, next) => {
 };
 
 
-// ---- GET PROFILE ----
+// GET PROFILE
+
 export const getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id)
@@ -138,8 +140,8 @@ export const getProfile = async (req, res, next) => {
   }
 };
 
-// ---- UPDATE PROFILE ----
-// PATCH /api/auth/me
+// UPDATE PROFILE 
+
 export const updateProfile = async (req, res, next) => {
   try {
     const { name } = req.body;
@@ -180,8 +182,8 @@ export const updateProfile = async (req, res, next) => {
   }
 };
 
-// ---- CHANGE PASSWORD ----
-// PATCH /api/auth/change-password
+// CHANGE PASSWORD 
+
 export const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -222,10 +224,8 @@ export const changePassword = async (req, res, next) => {
 };
 
 
-// FORGOT PASSWORD 
+// FORGOT PASSWORD (REQUEST OTP)
 
-// REQUEST OTP
-// POST /api/auth/forgot-password
 export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -284,8 +284,8 @@ export const forgotPassword = async (req, res, next) => {
 };
 
 
-// 8. FORGOT PASSWORD — STEP 2: VERIFY OTP
-// POST /api/auth/verify-otp
+// 8. FORGOT PASSWORD (VERIFY OTP)
+
 export const verifyOTP = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
@@ -337,11 +337,11 @@ export const verifyOTP = async (req, res, next) => {
 };
 
 
-// 9. FORGOT PASSWORD — STEP 3: RESET PASSWORD
-// POST /api/auth/reset-password
+// 9. FORGOT PASSWORD  (RESET PASSWORD)
+
 export const resetPassword = async (req, res, next) => {
   try {
-    const { resetToken, newPassword, confirmPassword } = req.body; // ✅ add confirmPassword
+    const { resetToken, newPassword, confirmPassword } = req.body;
 
     // check if resetToken exists
     if (!resetToken) {
@@ -409,7 +409,7 @@ export const resetPassword = async (req, res, next) => {
 
 
 // RESEND OTP
-// POST /api/auth/resend-otp
+
 export const resendOTP = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -469,128 +469,3 @@ export const resendOTP = async (req, res, next) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // VERIFY OTP
-// // POST /api/auth/verify-otp
-// export const verifyOTP = async (req, res, next) => {
-//   try {
-//     const { email, otp } = req.body;
-
-//     // find OTP in database
-//     const otpRecord = await OTP.findOne({
-//       email,
-//       otp,
-//       isUsed: false,
-//       purpose: 'password_reset'
-//     });
-
-//     // check if OTP exists
-//     if (!otpRecord) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid or expired OTP"
-//       });
-//     }
-
-//     // check if OTP has expired
-//     if (otpRecord.expiresAt < new Date()) {
-//       await OTP.deleteOne({ _id: otpRecord._id });
-//       return res.status(400).json({
-//         success: false,
-//         message: "OTP has expired. Please request a new one"
-//       });
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "OTP verified successfully. You can now reset your password"
-//     });
-
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-// // RESET PASSWORD
-// // POST /api/auth/reset-password
-// export const resetPassword = async (req, res, next) => {
-//   try {
-//     const { email, otp, newPassword } = req.body;
-
-//     // find OTP in database
-//     const otpRecord = await OTP.findOne({
-//       email,
-//       otp,
-//       isUsed: false,
-//       purpose: 'password_reset'
-//     });
-
-//     // check if OTP exists
-//     if (!otpRecord) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid or expired OTP"
-//       });
-//     }
-
-//     // check if OTP has expired
-//     if (otpRecord.expiresAt < new Date()) {
-//       await OTP.deleteOne({ _id: otpRecord._id });
-//       return res.status(400).json({
-//         success: false,
-//         message: "OTP has expired. Please request a new one"
-//       });
-//     }
-
-//     // find user
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "User not found"
-//       });
-//     }
-
-//     // check if new password is same as current password
-//     const isSamePassword = await bcrypt.compare(newPassword, user.password);
-//     if (isSamePassword) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "New password cannot be the same as your old password"
-//       });
-//     }
-
-//     // update password — pre save hook will hash it
-//     user.password = newPassword;
-//     await user.save();
-
-//     // mark OTP as used
-//     otpRecord.isUsed = true;
-//     await otpRecord.save();
-
-//     // delete all OTPs for this email
-//     await OTP.deleteMany({ email });
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Password reset successfully. You can now login with your new password"
-//     });
-
-//   } catch (error) {
-//     next(error);
-//   }
-// };

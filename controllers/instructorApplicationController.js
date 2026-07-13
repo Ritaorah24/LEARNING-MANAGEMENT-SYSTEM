@@ -5,9 +5,8 @@ import sendEmail from '../utils/sendEmail.js';
 
 
 
-//  STUDENT SIDE 
+//  APPLY TO BE AN INSTRUCTOR
 
-// POST /api/instructor-application/apply
 export const applyToBeInstructor = async (req, res, next) => {
   try {
     const { motivation, expertise, experience, portfolioLinks, qualifications } = req.body;
@@ -96,7 +95,8 @@ export const applyToBeInstructor = async (req, res, next) => {
   }
 };
 
-// GET /api/instructor-application/my-application
+// GET MY APPLICATION (INSTRUCTOR TO BE)
+
 export const getMyApplication = async (req, res, next) => {
   try {
     const application = await InstructorApplication.findOne({
@@ -120,7 +120,8 @@ export const getMyApplication = async (req, res, next) => {
   }
 };
 
-// DELETE /api/instructor-application/withdraw
+// DELETE(WITHDRAW) APPLICATION
+
 export const withdrawApplication = async (req, res, next) => {
   try {
     const application = await InstructorApplication.findOne({
@@ -154,9 +155,8 @@ export const withdrawApplication = async (req, res, next) => {
   }
 };
 
-// ---- ADMIN SIDE ----
+//  ADMIN SIDE ...... GET ALL ASPRING INSTRUCTORS APPLICATIONS
 
-// GET /api/instructor-application/all
 export const getAllApplications = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -191,7 +191,8 @@ export const getAllApplications = async (req, res, next) => {
   }
 };
 
-// GET /api/instructor-application/:applicationId
+// GET SINGLE APPLICATION
+
 export const getSingleApplication = async (req, res, next) => {
   try {
     const application = await InstructorApplication.findById(
@@ -215,7 +216,7 @@ export const getSingleApplication = async (req, res, next) => {
   }
 };
 
-// PATCH /api/instructor-application/:applicationId/review
+// ADMIN..... REVIEW APPLICATION
 export const reviewApplication = async (req, res, next) => {
   try {
     const { status, rejectionReason } = req.body;
@@ -246,7 +247,7 @@ export const reviewApplication = async (req, res, next) => {
     if (rejectionReason) application.rejectionReason = rejectionReason;
     await application.save();
 
-    // ---- IF APPROVED ----
+    // IF APPROVED 
     if (status === 'approved') {
       // change user role to instructor
       await User.findByIdAndUpdate(application.user._id, {
@@ -286,7 +287,7 @@ export const reviewApplication = async (req, res, next) => {
       });
     }
 
-    // ---- IF REJECTED ----
+    // IF REJECTED 
     if (status === 'rejected') {
       // send rejection email
       await sendEmail({

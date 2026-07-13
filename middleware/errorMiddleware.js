@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || "Something went wrong";
 
-  // ---- MONGOOSE ERRORS ----
+  // MONGOOSE ERRORS 
 
   // invalid MongoDB ID
   // e.g passing "allorders" as an id instead of a valid ObjectId
@@ -38,7 +38,7 @@ const errorHandler = (err, req, res, next) => {
     message = 'Document not found';
   }
 
-  // ---- JWT ERRORS ----
+  //  JWT ERRORS 
 
   // invalid token
   // e.g token was tampered with
@@ -54,7 +54,7 @@ const errorHandler = (err, req, res, next) => {
     message = 'Token expired, please login again';
   }
 
-  // ---- SYNTAX ERRORS ----
+  //SYNTAX ERRORS 
 
   // invalid JSON in request body
   if (err.name === 'SyntaxError') {
