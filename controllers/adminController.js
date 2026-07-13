@@ -13,7 +13,6 @@ import Report from '../models/reportModel.js';
 
 //USER MANAGEMENT 
 
-// GET /api/admin/users
 export const getAllUsers = async (req, res, next) => {
   try {
     // pagination
@@ -52,7 +51,9 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-// GET /api/admin/users/:userId
+
+// GET SINGLE USER
+
 export const getSingleUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId)
@@ -75,7 +76,9 @@ export const getSingleUser = async (req, res, next) => {
   }
 };
 
-// PATCH /api/admin/users/:userId/role
+
+//UPDATE USER ROLE
+
 export const updateUserRole = async (req, res, next) => {
   try {
     const { role } = req.body;
@@ -120,7 +123,8 @@ export const updateUserRole = async (req, res, next) => {
   }
 };
 
-// PATCH /api/admin/users/:userId/status
+//UPDATE USER STATUS
+
 export const updateUserStatus = async (req, res, next) => {
   try {
     const { isActive } = req.body;
@@ -155,7 +159,8 @@ export const updateUserStatus = async (req, res, next) => {
   }
 };
 
-// DELETE /api/admin/users/:userId
+// DELETE USER
+
 export const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId);
@@ -189,7 +194,6 @@ export const deleteUser = async (req, res, next) => {
 
 // STUDENT MANAGEMENT 
 
-// GET /api/admin/students
 export const getAllStudents = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -220,7 +224,8 @@ export const getAllStudents = async (req, res, next) => {
   }
 };
 
-// GET /api/admin/students/:studentId
+// GET STUDENT DETAILS
+
 export const getStudentDetails = async (req, res, next) => {
   try {
     const student = await User.findOne({
@@ -269,7 +274,6 @@ export const getStudentDetails = async (req, res, next) => {
 
 //INSTRUCTOR MANAGEMENT 
 
-// GET /api/admin/instructors
 export const getAllInstructors = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -300,7 +304,8 @@ export const getAllInstructors = async (req, res, next) => {
   }
 };
 
-// GET /api/admin/instructors/:instructorId
+// GET INSTRUCTOR DETAILS
+
 export const getInstructorDetails = async (req, res, next) => {
   try {
     const instructor = await User.findOne({
@@ -346,7 +351,8 @@ export const getInstructorDetails = async (req, res, next) => {
   }
 };
 
-// PATCH /api/admin/instructors/:instructorId/verify
+// VERIFY INSTRUCTOR 
+
 export const verifyInstructor = async (req, res, next) => {
   try {
     const { isVerified } = req.body;
@@ -383,7 +389,6 @@ export const verifyInstructor = async (req, res, next) => {
 
 // COURSE MANAGEMENT 
 
-// GET /api/admin/courses
 export const getAllCourses = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -420,7 +425,8 @@ export const getAllCourses = async (req, res, next) => {
   }
 };
 
-// GET /api/admin/courses/:courseId
+// GET ADMIN SINGLE COURSE
+
 export const getAdminSingleCourse = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.courseId)
@@ -445,7 +451,8 @@ export const getAdminSingleCourse = async (req, res, next) => {
   }
 };
 
-// DELETE /api/admin/courses/:courseId
+// DELETE COURSE
+
 export const deleteCourse = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.courseId);
@@ -481,7 +488,8 @@ export const deleteCourse = async (req, res, next) => {
   }
 };
 
-// PATCH /api/admin/courses/:courseId/moderate
+// MODERATE COURSE
+
 export const moderateCourse = async (req, res, next) => {
   try {
     const { isPublished, moderationNote } = req.body;
@@ -512,7 +520,6 @@ export const moderateCourse = async (req, res, next) => {
 
 // ANALYTICS AND REPORTING 
 
-// GET /api/admin/analytics
 export const getAnalytics = async (req, res, next) => {
   try {
     // user counts
@@ -587,7 +594,8 @@ export const getAnalytics = async (req, res, next) => {
   }
 };
 
-// GET /api/admin/analytics/courses
+// COURSE ANALYTICS
+
 export const getCourseAnalytics = async (req, res, next) => {
   try {
     // enrollments per category
@@ -630,8 +638,6 @@ export const getCourseAnalytics = async (req, res, next) => {
 
 // CONTENT MODERATION 
 
-// POST /api/admin/reports
-// any logged in user can submit a report
 export const submitReport = async (req, res, next) => {
   try {
     const { contentType, contentId, reason, description } = req.body;
@@ -669,8 +675,8 @@ export const submitReport = async (req, res, next) => {
   }
 };
 
-// GET /api/admin/reports
-// admin only — get all reports
+// GET ALL REPORTS
+
 export const getAllReports = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -708,8 +714,8 @@ export const getAllReports = async (req, res, next) => {
   }
 };
 
-// GET /api/admin/reports/:reportId
-// admin only — get single report
+// GET A SINGLE REPORT
+// admin only 
 export const getSingleReport = async (req, res, next) => {
   try {
     const report = await Report.findById(req.params.reportId)
@@ -733,8 +739,9 @@ export const getSingleReport = async (req, res, next) => {
   }
 };
 
-// PATCH /api/admin/reports/:reportId/review
-// admin only — review a report
+// REVIEW REPORT
+// admin only
+
 export const reviewReport = async (req, res, next) => {
   try {
     const { status, reviewNote } = req.body;
@@ -795,8 +802,9 @@ export const reviewReport = async (req, res, next) => {
   }
 };
 
-// GET /api/admin/reports/stats
-// admin only — get report statistics
+// GET REPORT STATUS
+// admin only 
+
 export const getReportStats = async (req, res, next) => {
   try {
     // count by status

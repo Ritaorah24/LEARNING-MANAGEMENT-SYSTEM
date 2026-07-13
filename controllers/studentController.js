@@ -9,7 +9,7 @@ import crypto from 'crypto';
 
 
 // STUDENT DASHBOARD 
-// GET /api/student/dashboard
+
 export const getStudentDashboard = async (req, res, next) => {
   try {
     // get all enrollments for the logged in student
@@ -43,8 +43,8 @@ export const getStudentDashboard = async (req, res, next) => {
   }
 };
 
-// ---- COURSE CATALOG ----
-// GET /api/student/courses
+// COURSE CATALOG 
+
 export const getCourseCatalog = async (req, res, next) => {
   try {
     // pagination
@@ -87,8 +87,9 @@ export const getCourseCatalog = async (req, res, next) => {
   }
 };
 
-// ---- COURSE ENROLLMENT ----
-// POST /api/student/enroll
+
+// COURSE ENROLLMENT 
+
 export const enrollCourse = async (req, res, next) => {
   try {
     const { courseId } = req.body;
@@ -151,8 +152,8 @@ export const enrollCourse = async (req, res, next) => {
   }
 };
 
-// ---- VIDEO LESSONS ----
-// GET /api/student/courses/:courseId/lessons
+//  VIDEO LESSONS 
+
 export const getCourseLessons = async (req, res, next) => {
   try {
     const { courseId } = req.params;
@@ -192,8 +193,8 @@ export const getCourseLessons = async (req, res, next) => {
   }
 };
 
-// ---- DOWNLOADABLE RESOURCES ----
-// GET /api/student/lessons/:lessonId/resources
+//  DOWNLOADABLE RESOURCES 
+
 export const getLessonResources = async (req, res, next) => {
   try {
     const { lessonId } = req.params;
@@ -230,8 +231,8 @@ export const getLessonResources = async (req, res, next) => {
   }
 };
 
-// ---- PROGRESS TRACKING ----
-// POST /api/student/lessons/complete
+// PROGRESS TRACKING 
+
 export const markLessonComplete = async (req, res, next) => {
   try {
     const { lessonId } = req.body;
@@ -297,7 +298,8 @@ export const markLessonComplete = async (req, res, next) => {
   }
 };
 
-// GET /api/student/courses/:courseId/progress
+
+// GET COURSE PROGRESS
 export const getCourseProgress = async (req, res, next) => {
   try {
     const { courseId } = req.params;
@@ -332,8 +334,8 @@ export const getCourseProgress = async (req, res, next) => {
   }
 };
 
-// ---- QUIZZES AND ASSESSMENTS ----
-// GET /api/student/courses/:courseId/quizzes
+// QUIZZES AND ASSESSMENTS
+// GET COURSE QUIZZES
 export const getCourseQuizzes = async (req, res, next) => {
   try {
     const { courseId } = req.params;
@@ -363,7 +365,7 @@ export const getCourseQuizzes = async (req, res, next) => {
   }
 };
 
-// POST /api/student/quizzes/:quizId/submit
+// SUBMIT QUIZ
 export const submitQuiz = async (req, res, next) => {
   try {
     const { quizId } = req.params;
@@ -432,8 +434,8 @@ export const submitQuiz = async (req, res, next) => {
   }
 };
 
-// ---- CERTIFICATE GENERATION ----
-// POST /api/student/courses/:courseId/certificate
+// CERTIFICATE GENERATION 
+
 export const generateCertificate = async (req, res, next) => {
   try {
     const { courseId } = req.params;
@@ -500,7 +502,8 @@ export const generateCertificate = async (req, res, next) => {
   }
 };
 
-// GET /api/student/certificates
+
+//  STUDENT CERTIFICATES
 export const getStudentCertificates = async (req, res, next) => {
   try {
     const certificates = await Certificate.find({ studentId: req.user.id })

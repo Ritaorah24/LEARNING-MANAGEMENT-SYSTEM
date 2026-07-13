@@ -9,7 +9,7 @@ import UserSubscription from '../models/userSubcriptionModel.js';
 
 
 
-// ---- HELPER FUNCTIONS ----
+// HELPER FUNCTIONS 
 
 // generate unique payment reference
 const generatePaymentRef = () => {
@@ -34,9 +34,9 @@ const paystackAPI = axios.create({
   }
 });
 
-// ---- 1. INITIALIZE PAYMENT ----
 
-// POST /api/payment/initialize
+//  1. INITIALIZE PAYMENT 
+
 export const initializePayment = async (req, res, next) => {
   try {
     const { type, courseId, planId } = req.body;
@@ -48,7 +48,7 @@ export const initializePayment = async (req, res, next) => {
     let itemName = '';
     let paymentData = {};
 
-    // ---- COURSE PAYMENT ----
+    // COURSE PAYMENT 
     if (type === 'course') {
       if (!courseId) {
         return res.status(400).json({
@@ -93,7 +93,7 @@ export const initializePayment = async (req, res, next) => {
       paymentData.course = courseId;
     }
 
-    // ---- SUBSCRIPTION PAYMENT ----
+    // SUBSCRIPTION PAYMENT 
     if (type === 'subscription') {
       if (!planId) {
         return res.status(400).json({
@@ -144,7 +144,7 @@ export const initializePayment = async (req, res, next) => {
       status: 'pending'
     });
 
-    // ---- CALL PAYSTACK INITIALIZE ----
+    //  CALL PAYSTACK INITIALIZE 
     const paystackResponse = await paystackAPI.post(
       '/transaction/initialize',
       {
@@ -205,9 +205,9 @@ export const initializePayment = async (req, res, next) => {
   }
 };
 
-// ---- 2. VERIFY PAYMENT ----
 
-// POST /api/payment/verify
+// 2. VERIFY PAYMENT 
+
 export const verifyPayment = async (req, res, next) => {
   try {
     const { reference } = req.body;
@@ -279,7 +279,7 @@ export const verifyPayment = async (req, res, next) => {
 
     await payment.save();
 
-    // ---- FULFILL PAYMENT ----
+    // FULFILL PAYMENT 
     await fulfillPayment(payment);
 
     return res.status(200).json({
@@ -300,13 +300,12 @@ export const verifyPayment = async (req, res, next) => {
   }
 };
 
-// ---- 3. PAYSTACK WEBHOOK ----
+// 3. PAYSTACK WEBHOOK 
 
-// POST /api/payment/webhook
 // called automatically by paystack after payment
 export const paystackWebhook = async (req, res, next) => {
   try {
-    // ---- VERIFY WEBHOOK SIGNATURE ----
+    // VERIFY WEBHOOK SIGNATURE 
     // this makes sure the request is actually from paystack
     // and not from someone pretending to be paystack
     const signature = req.headers['x-paystack-signature'];
@@ -325,7 +324,7 @@ export const paystackWebhook = async (req, res, next) => {
     const event = req.body;
     console.log('Paystack webhook event:', event.event);
 
-    // ---- HANDLE DIFFERENT EVENTS ----
+    // HANDLE DIFFERENT EVENTS 
     switch (event.event) {
 
       // payment was successful
@@ -398,10 +397,11 @@ export const paystackWebhook = async (req, res, next) => {
   }
 };
 
-// ---- FULFILL PAYMENT HELPER ----
+
+//  FULFILL PAYMENT HELPER 
 // called after payment is verified — both from verify and webhook
 const fulfillPayment = async (payment) => {
-  // ---- FULFILL COURSE PURCHASE ----
+  // FULFILL COURSE PURCHASE 
   if (payment.type === 'course') {
     // add course to student purchased courses
     await User.findByIdAndUpdate(payment.user, {
@@ -434,7 +434,7 @@ const fulfillPayment = async (payment) => {
     }
   }
 
-  // ---- FULFILL SUBSCRIPTION ----
+  // FULFILL SUBSCRIPTION 
   if (payment.type === 'subscription') {
     const plan = await SubscriptionPlan.findById(payment.subscription);
 
@@ -461,9 +461,9 @@ const fulfillPayment = async (payment) => {
   }
 };
 
-// ---- INVOICE ----
 
-// GET /api/payment/invoice/:reference
+//  INVOICE 
+
 export const getInvoice = async (req, res, next) => {
   try {
     const payment = await Payment.findOne({
@@ -520,7 +520,8 @@ export const getInvoice = async (req, res, next) => {
   }
 };
 
-// GET /api/payment/history
+
+// GET PAYMENT HISTORY
 export const getPaymentHistory = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;

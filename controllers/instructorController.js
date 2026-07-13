@@ -9,7 +9,7 @@ import { deleteFromCloudinary, getPublicIdFromUrl } from '../utils/cloudinaryHel
 
 
 // INSTRUCTOR DASHBOARD 
-// GET /api/instructor/dashboard
+
 export const getInstructorDashboard = async (req, res, next) => {
   try {
     // get all courses by this instructor
@@ -55,12 +55,11 @@ export const getInstructorDashboard = async (req, res, next) => {
 
 // COURSE CREATION AND MANAGEMENT
 
-// POST /api/instructor/courses
 export const createCourse = async (req, res, next) => {
   try {
     const { title, description, category, level, price } = req.body;
 
-       const thumbnail = req.file ? req.file.path : null;
+    const thumbnail = req.file ? req.file.path : null;
 
     const course = await Course.create({
       title,
@@ -70,7 +69,7 @@ export const createCourse = async (req, res, next) => {
       price,
       thumbnail,
       instructorId: req.user.id,
-      isPublished: false // draft by default
+      isPublished: false // By default
     });
 
     // update instructor profile total courses
@@ -90,7 +89,8 @@ export const createCourse = async (req, res, next) => {
   }
 };
 
-// GET /api/instructor/courses
+// GET INSTRUCTOR COURSES
+
 export const getInstructorCourses = async (req, res, next) => {
   try {
     // pagination
@@ -128,7 +128,9 @@ export const getInstructorCourses = async (req, res, next) => {
   }
 };
 
-// GET /api/instructor/courses/:courseId
+
+// GET SINGLE INSTRUCTOR COURSE
+
 export const getSingleInstructorCourse = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.courseId)
@@ -160,7 +162,8 @@ export const getSingleInstructorCourse = async (req, res, next) => {
   }
 };
 
-// PUT /api/instructor/courses/:courseId
+
+// UPDATE COURSE
 export const updateCourse = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.courseId);
@@ -172,7 +175,7 @@ export const updateCourse = async (req, res, next) => {
       });
     }
 
-    // make sure this course belongs to the instructor
+    // ensuring this course belongs to the instructor
     if (course.instructorId.toString() !== req.user.id.toString()) {
       return res.status(403).json({
         success: false,
@@ -207,7 +210,7 @@ export const updateCourse = async (req, res, next) => {
   }
 };
 
-// DELETE /api/instructor/courses/:courseId
+// DELETE COURSE
 export const deleteCourse = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.courseId);
@@ -252,7 +255,7 @@ export const deleteCourse = async (req, res, next) => {
   }
 };
 
-// PATCH /api/instructor/courses/:courseId/publish
+// PUBLISH/UNPUBLISH COURSE
 export const togglePublishCourse = async (req, res, next) => {
   try {
     const course = await Course.findById(req.params.courseId);
@@ -300,128 +303,68 @@ export const togglePublishCourse = async (req, res, next) => {
 //LESOON MANAGEMENT
 //CREATE LESSON
 export const createLesson = async (req, res, next) => {
-   try {
-   if (!req.file) {
-   return res.status(400).json({
-   success: false,
-   message: "Video is required",
- });
-}
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Video is required",
+      });
+    }
 
- const { title, duration, order, isPreview } = req.body
+    const { title, duration, order, isPreview } = req.body
 
-   const course = await Course.findById(req.params.courseId);
-   if (!course) {
-   return res.status(404).json({
-   success: false,
-   message: "Course not found",
-   });
- }
+    const course = await Course.findById(req.params.courseId);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
 
-   if (course.instructorId.toString() !== req.user.id.toString()) {
-   return res.status(403).json({
-   success: false,
-   message: "You are not authorized to add lessons to this course",
-   });
- }
+    if (course.instructorId.toString() !== req.user.id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to add lessons to this course",
+      });
+    }
 
-   const videoUrl = req.file.path;
-  // console.log(videoUrl)        // Cloudinary hosted URL
-  // const videoPublicId = req.file.filename; // Cloudinary public_id
+    const videoUrl = req.file.path;
+    // console.log(videoUrl)        // Cloudinary hosted URL
+    // const videoPublicId = req.file.filename; // Cloudinary public_id
 
     try {
-    const lesson = await Lesson.create({
-    title,
-    videoUrl,
-    duration,
-    order,
-    isPreview: isPreview === "true",
-    resources: [],
-    courseId: req.params.courseId, // matches Lesson schema
-    });
+      const lesson = await Lesson.create({
+        title,
+        videoUrl,
+        duration,
+        order,
+        isPreview: isPreview === "true",
+        resources: [],
+        courseId: req.params.courseId, // matches Lesson schema
+      });
 
-    course.lessonsId.push(lesson._id); // matches Course schema
-    await course.save();
+      course.lessonsId.push(lesson._id); // matches Course schema
+      await course.save();
 
-    return res.status(201).json({
-    success: true,
-    message: "Lesson created successfully",
-    data: lesson,
-    });
-} catch (dbError) {
-    await cloudinary.uploader.destroy(req.file.filename, {
-    resource_type: "video",
-    });
-   console.log(dbError)
-    throw dbError;
-}
+      return res.status(201).json({
+        success: true,
+        message: "Lesson created successfully",
+        data: lesson,
+      });
+    } catch (dbError) {
+      await cloudinary.uploader.destroy(req.file.filename, {
+        resource_type: "video",
+      });
+      console.log(dbError)
+      throw dbError;
+    }
   } catch (error) {
     console.log(error)
     next(error);
   }
 };
 
-//LESSON MANAGEMENT 
-
-// POST /api/instructor/courses/:courseId/lessons
-// export const createLesson = async (req, res, next) => {
-//   try {
-//     const { title, duration, order, isPreview, resources } = req.body;
-//     console.log(req.body)
-
-//     // check if course exists and belongs to instructor
-//     const course = await Course.findById(req.params.courseId);
-//     if (!course) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Course not found"
-//       });
-//     }
-
-//     if (course.instructorId.toString() !== req.user.id.toString()) {
-//       return res.status(403).json({
-//         success: false,
-//         message: "You are not authorized to add lessons to this course"
-//       });
-//     }
-//     if (!req.file) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Video is required"
-//       });
-//     }
-
-//     const videoUrl = req.file.path; // cloudinary URL
-
-//     // create the lesson
-//     const lesson = await Lesson.create({
-//       title,
-//       videoUrl,
-//       duration,
-//       order,
-//       isPreview: isPreview || false,
-//       resources:[],
-//       courseId: req.params.courseId
-//     });
-
-//     // add lesson to course
-//     await Course.findByIdAndUpdate(req.params.courseId, {
-//       $push: { lessonsId: lesson._id }
-//     });
-
-//     return res.status(201).json({
-//       success: true,
-//       message: "Lesson created successfully",
-//       data: lesson
-//     });
-
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-// GET /api/instructor/courses/:courseId/lessons
-
+// GET COURSE LESSONS
 
 export const getCourseLessons = async (req, res, next) => {
   try {
@@ -454,7 +397,9 @@ export const getCourseLessons = async (req, res, next) => {
   }
 };
 
-// PUT /api/instructor/lessons/:lessonId
+
+// UPDATE LESSON
+
 export const updateLesson = async (req, res, next) => {
   try {
     const lesson = await Lesson.findById(req.params.lessonId);
@@ -491,7 +436,7 @@ export const updateLesson = async (req, res, next) => {
   }
 };
 
-// DELETE /api/instructor/lessons/:lessonId
+// DELETE LESSON
 export const deleteLesson = async (req, res, next) => {
   try {
     const lesson = await Lesson.findById(req.params.lessonId);
@@ -529,8 +474,10 @@ export const deleteLesson = async (req, res, next) => {
   }
 };
 
-// POST /api/instructor/lessons/:lessonId/resources
+
+// UPLOAD LESSON RESOURCE
 // upload pdf, doc, ppt, xls, zip to a lesson
+
 export const uploadLessonResource = async (req, res, next) => {
   try {
     const { title } = req.body;
@@ -586,7 +533,7 @@ export const uploadLessonResource = async (req, res, next) => {
   }
 };
 
-// DELETE /api/instructor/lessons/:lessonId/resources/:resourceId
+// DELETE LESSON RESOURCE
 // delete a resource from a lesson
 export const deleteLessonResource = async (req, res, next) => {
   try {
@@ -634,9 +581,9 @@ export const deleteLessonResource = async (req, res, next) => {
   }
 };
 
+
 //QUIZ CREATION 
 
-// POST /api/instructor/courses/:courseId/quizzes
 export const createQuiz = async (req, res, next) => {
   try {
     const { title, lessonId, questions, passingScore, timeLimit } = req.body;
@@ -659,7 +606,7 @@ export const createQuiz = async (req, res, next) => {
 
     const quiz = await Quiz.create({
       title,
-      courseId :req.params.courseId,
+      courseId: req.params.courseId,
       lesson: lessonId,
       questions,
       passingScore,
@@ -677,7 +624,8 @@ export const createQuiz = async (req, res, next) => {
   }
 };
 
-// GET /api/instructor/courses/:courseId/quizzes
+// GET COURSE QUIZZES
+
 export const getCourseQuizzes = async (req, res, next) => {
   try {
     // check if course belongs to instructor
@@ -708,7 +656,7 @@ export const getCourseQuizzes = async (req, res, next) => {
   }
 };
 
-// DELETE /api/instructor/quizzes/:quizId
+// DELETE QUIZ
 export const deleteQuiz = async (req, res, next) => {
   try {
     const quiz = await Quiz.findById(req.params.quizId);
@@ -742,8 +690,7 @@ export const deleteQuiz = async (req, res, next) => {
 
 
 // STUDENT PROGRESS MONITORING 
-
-// GET /api/instructor/courses/:courseId/students
+// GET COURSE STUDENT (to see the students that registered for a course)
 export const getCourseStudents = async (req, res, next) => {
   try {
     // check if course belongs to instructor
@@ -777,7 +724,8 @@ export const getCourseStudents = async (req, res, next) => {
   }
 };
 
-// GET /api/instructor/courses/:courseId/students/:studentId/progress
+// GET STUDENT PROGRESS
+
 export const getStudentProgress = async (req, res, next) => {
   try {
     // check if course belongs to instructor
